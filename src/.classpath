@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path=""/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/activation-1.1.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/axis.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/axis2-ant-plugin-1.6.1.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/commons-discovery-0.2.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/commons-httpclient-3.1-beta1.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/javacImpl-0.9.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/jaxrpc.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/mail.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/pingservice.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/saaj.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/serverpool.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/vijava2120100824.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/wsdl4j.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/xml-apis.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/jsp-api.jar"/>
+	<classpathentry kind="lib" path="D:/fall2012/283/jars/servlet-api.jar"/>
+	<classpathentry kind="output" path=""/>
+</classpath>
