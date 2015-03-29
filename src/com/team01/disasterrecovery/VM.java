@@ -62,9 +62,22 @@ public class VM implements VMInterface{
 
 	//Ping the machine to check if the machine is reachable
 	@Override
-	public boolean ifReachable() {
-		
-		return false;
+	public boolean ifReachable(){
+		int maxTries = 0;
+		//Try ping limited number of times to check if the machine is reachable or not
+		while(!Reachable.ping(virtualMachine.getGuest().getIpAddress())){
+			if(maxTries++ >= 3){
+				return false;
+			}
+			else{
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return true;
 	}
 
 	//Check if the alarm got already triggered for this virtual machine
@@ -93,10 +106,4 @@ public class VM implements VMInterface{
 		return virtualMachine;
 	}
 
-	@Override
-	public void showStats() {
-		// TODO Auto-generated method stub
-		
-	}
-	
 }

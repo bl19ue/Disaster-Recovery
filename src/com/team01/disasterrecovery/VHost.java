@@ -7,5 +7,4 @@ import com.vmware.vim25.mo.ServiceInstance;
 public class VHost {
 	List<VM> vmList;
 	private ServiceInstance vCenter;
-	
 }

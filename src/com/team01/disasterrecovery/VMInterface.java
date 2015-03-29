@@ -9,5 +9,4 @@ public interface VMInterface {
 	public boolean ifReachable();
 	public boolean ifAlarmTriggered(Alarm alarm);
 	public VirtualMachine getVirtualMachine();
-	public void showStats();
 }
