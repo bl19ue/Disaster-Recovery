@@ -17,12 +17,12 @@ public class AlarmHandler {
 	private static String NAME = "Power Off Alarm";
 	private static String DESCRIPTION = "Triggers Alarm if VM goes down";
 	
-	private ManagedEntity[] dataCenters;
-	private AlarmManager alarmManager;
-	private AlarmSpec alarmSpecs;
-	private StateAlarmExpression stateAlarmExpression;
-	private AlarmSetting alarmSetting;
-	public Alarm createAlarm(ServiceInstance vCenter) throws Exception{
+	private static ManagedEntity[] dataCenters;
+	private static AlarmManager alarmManager;
+	private static AlarmSpec alarmSpecs;
+	private static StateAlarmExpression stateAlarmExpression;
+	private static AlarmSetting alarmSetting;
+	public static Alarm createAlarm(ServiceInstance vCenter) throws Exception{
 		//Get all the data centers in our vCenter
 		dataCenters = vCenter.getRootFolder().getChildEntity();
 		
@@ -51,7 +51,7 @@ public class AlarmHandler {
 	}
 	
 	//Used to create a new StateAlarmExpression on a VM
-	private void assignStateAlarmExpression(){
+	private static void assignStateAlarmExpression(){
 		stateAlarmExpression = new StateAlarmExpression();
 		
 		//The Alarm is supposed to be on a virtual machine, so type = VirtualMachine
@@ -90,7 +90,7 @@ public class AlarmHandler {
 	}
 
 	//Creates a new alarm setting
-	private void createAlarmSetting(){
+	private static void createAlarmSetting(){
 		//AlarmSetting only has to methods as specified below
 		alarmSetting = new AlarmSetting();
 		
@@ -104,7 +104,7 @@ public class AlarmHandler {
 	}
 
 	//Checks and removes the alarm if it is similar to what we are making
-	private void checkAndRemoveAlarms() throws Exception{
+	private static void checkAndRemoveAlarms() throws Exception{
 
 		//*********************For all the Data Centers we need to obtain the Alarms using the alarm manager
 		//for(int num_of_datacenter = 0; num_of_datacenter < dataCenters.length; num_of_datacenter++ ){
@@ -120,7 +120,7 @@ public class AlarmHandler {
 	}
 
 	//*********************At last we need to create the alarm we configured for all the data centers
-	private Alarm getFinalAlarm() throws Exception{
+	private static Alarm getFinalAlarm() throws Exception{
 		//for(int num_of_datacenter = 0; num_of_datacenter < dataCenters.length; num_of_datacenter++ ){
 			Alarm alarm = alarmManager.createAlarm(dataCenters[0], alarmSpecs);
 			System.out.println(AvailabilityManager.INFO + "Alarm Created");
