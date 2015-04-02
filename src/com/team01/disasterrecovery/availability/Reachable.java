@@ -1,4 +1,6 @@
-package com.team01.disasterrecovery;
+package com.team01.disasterrecovery.availability;
+
+import com.team01.disasterrecovery.AvailabilityManager;
 
 public class Reachable {
 	public static boolean ping(String ip){

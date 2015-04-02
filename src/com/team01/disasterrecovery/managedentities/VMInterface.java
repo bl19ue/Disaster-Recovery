@@ -1,4 +1,4 @@
-package com.team01.disasterrecovery;
+package com.team01.disasterrecovery.managedentities;
 
 import com.vmware.vim25.mo.Alarm;
 import com.vmware.vim25.mo.VirtualMachine;

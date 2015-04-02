@@ -1,5 +1,6 @@
-package com.team01.disasterrecovery;
+package com.team01.disasterrecovery.alarm;
 
+import com.team01.disasterrecovery.AvailabilityManager;
 import com.vmware.vim25.AlarmSetting;
 import com.vmware.vim25.AlarmSpec;
 import com.vmware.vim25.StateAlarmExpression;
@@ -22,7 +23,8 @@ public class AlarmHandler {
 	private static AlarmSpec alarmSpecs;
 	private static StateAlarmExpression stateAlarmExpression;
 	private static AlarmSetting alarmSetting;
-	public static Alarm createAlarm(ServiceInstance vCenter) throws Exception{
+	
+	public Alarm createAlarm(ServiceInstance vCenter) throws Exception{
 		//Get all the data centers in our vCenter
 		dataCenters = vCenter.getRootFolder().getChildEntity();
 		

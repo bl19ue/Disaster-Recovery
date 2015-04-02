@@ -1,5 +1,7 @@
-package com.team01.disasterrecovery;
+package com.team01.disasterrecovery.managedentities;
 
+import com.team01.disasterrecovery.AvailabilityManager;
+import com.team01.disasterrecovery.availability.Reachable;
 import com.vmware.vim25.AlarmState;
 import com.vmware.vim25.mo.Alarm;
 import com.vmware.vim25.mo.Task;
@@ -7,6 +9,7 @@ import com.vmware.vim25.mo.VirtualMachine;
 
 public class VM implements VMInterface{
 
+	private static int MAX_TRIES = 5;
 	private VirtualMachine virtualMachine;
 	
 	public VM(VirtualMachine virtualMachine){
@@ -66,14 +69,19 @@ public class VM implements VMInterface{
 		int maxTries = 0;
 		//Try ping limited number of times to check if the machine is reachable or not
 		while(!Reachable.ping(virtualMachine.getGuest().getIpAddress())){
-			if(maxTries++ >= 3){
+			if(maxTries++ >= MAX_TRIES){
 				return false;
 			}
 			else{
 				try {
+					//Wait for 1 second  
 					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				}
+				catch (InterruptedException e) {
+					System.out.println(AvailabilityManager.ERROR 
+							+ "Could not ping the machine with IP Address = " 
+							+ virtualMachine.getGuest().getIpAddress() 
+							+ "Reason:" + e.toString());
 				}
 			}
 		}
