@@ -21,6 +21,7 @@ public class VCenter {
 	private List<VHost> vHostList;
 	private static ServiceInstance vCenter;
 	
+	@SuppressWarnings("unchecked")
 	public VCenter(ServiceInstance vCenter){
 		this.vCenter = vCenter;
 		
@@ -69,10 +70,9 @@ public class VCenter {
 		}
 	}
 
-	/*This method will create a snapshot for all the VMs that are present inside a vHost
-	 after particular snapshotTimeOut.
-	 */
 	
+	//This method will create a snapshot for all the VMs that are present inside a vHost
+	// after particular snapshotTimeOut.
 	public void createSnapshot() {
 		//As the program starts, we never want to stop taking backups, so infinite loop
 		while(flag){

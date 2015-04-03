@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.team01.disasterrecovery.AvailabilityManager;
 import com.team01.disasterrecovery.alarm.AlarmHandler;
+import com.team01.disasterrecovery.availability.Reachable;
 import com.team01.disasterrecovery.snapshot.SnapshotInterface;
 import com.team01.disasterrecovery.snapshot.VHostSnapshot;
 import com.vmware.vim25.mo.Alarm;
@@ -13,10 +14,12 @@ import com.vmware.vim25.mo.HostSystem;
 import com.vmware.vim25.mo.InventoryNavigator;
 import com.vmware.vim25.mo.ManagedEntity;
 import com.vmware.vim25.mo.ServiceInstance;
+import com.vmware.vim25.mo.Task;
 import com.vmware.vim25.mo.VirtualMachine;
 
 public class VHost {
-	List<VM> vmList;
+	private List<VM> vmList;
+	private static int RECONNECT_ATTEMPTS = 3;
 	private HostSystem vhost;
 	private ServiceInstance vCenter;
 	private AlarmHandler alarmHandler;
@@ -123,20 +126,31 @@ public class VHost {
 							System.out.println(AvailabilityManager.INFO + "VHost is reachable through its IP:" + this.getIPAddress());
 							thisVirtualMachine.useSnapshot();
 							
-							//As the VHost was on, we should wait for the VM to start 
+							//As the VHost was on, we should wait for the VM to start so we can do that by checking if we can ping the machine or not
+							while(true){
+								if(thisVirtualMachine.getIPAddress() != null){
+									break;
+								}
+							}
 							
+							
+							
+						}
+						//If the vHost is down
+						else{
+							System.out.println(AvailabilityManager.ERROR + "Host not reachable " + "Reason: " + "Might not be connected");
+							return false;
 						}
 					}
 				}
 			} 
-			else {
-				//return true if no VMs found inside vHost
-				return true;
-			}
 		} 
 		catch (Exception e) {
-
+			System.out.println(AvailabilityManager.ERROR
+					+ "Error checking VHost and VMs availability " 
+					+ "Reason: " + e.toString());
 		}
+		return true;
 	}
 	
 	//this method checks if the alarm was triggered or not on any VM
@@ -151,9 +165,8 @@ public class VHost {
 	}
 
 	public boolean ping() {
-		//code to ping vHost;
-
-		return true;
+		//this method uses the reachable class to ping the vHost
+		return Reachable.ping(this.getIPAddress());
 	}
 	
 	public String getIPAddress(){
@@ -164,5 +177,54 @@ public class VHost {
 	//Gets the name of the Host [usage: Snapshot]
 	public String getVHostName(){
 		return vhost.getName();
+	}
+	
+	//Recovers the VHost 
+	public boolean beginHostRecovery(){
+		boolean recovered = snapshotVHost.useSnapshot();
+		if(recovered){
+			System.out.println(AvailabilityManager.INFO + "Recovery of Host completed");
+			
+			try{
+				//Now as the host has been completely recovered
+				//We need to try reconnection to it for limited number of attempts
+				for(int i=0;i<RECONNECT_ATTEMPTS;i++){
+					//Let's create a task again for reconnection, as the API provides it
+					Task reconnectTask = vhost.reconnectHost_Task(null);
+					System.out.println(AvailabilityManager.INFO + "Host Reconnection started for: " + this.getVHostName());
+					
+					//We should wait atleast for 1 minute
+					Thread.sleep(60 * 1000);
+					
+					//Now let's check if it was a success or not
+					if(reconnectTask.waitForTask() == Task.SUCCESS){
+						System.out.println(AvailabilityManager.INFO + "Host reconnection accomplished for: " + this.getVHostName());
+						
+						//Now as all the VM's were down, let us start them
+						for(VM virtualMachine : vmList){
+							virtualMachine.powerOn();
+							//Let's wait for the VM to start
+							while(true){ 
+								if(virtualMachine.getIPAddress() != null){
+									break; 
+								}
+							}
+						}
+						return true;
+					}
+					else{
+						System.out.println(AvailabilityManager.ERROR
+								+ "Error in reconnecting this host " 
+								+ "Reason: " + "Unknown");
+					}
+				}
+			}
+			catch(Exception e){
+				System.out.println(AvailabilityManager.ERROR
+						+ "Error in recovering this host " 
+						+ "Reason: " + e.toString());
+			}
+		}
+		return false;
 	}
 }
