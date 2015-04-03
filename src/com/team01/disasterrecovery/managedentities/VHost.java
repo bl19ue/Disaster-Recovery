@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.team01.disasterrecovery.AvailabilityManager;
 import com.team01.disasterrecovery.alarm.AlarmHandler;
+import com.team01.disasterrecovery.snapshot.SnapshotInterface;
+import com.team01.disasterrecovery.snapshot.VHostSnapshot;
 import com.vmware.vim25.mo.Alarm;
 import com.vmware.vim25.mo.AlarmManager;
 import com.vmware.vim25.mo.HostSystem;
@@ -18,15 +20,19 @@ public class VHost {
 	private HostSystem vhost;
 	private ServiceInstance vCenter;
 	private AlarmHandler alarmHandler;
-
+	private SnapshotInterface snapshotVHost;
+	
 	public VHost(HostSystem vhost) {
 		this.vhost = vhost;
 		
-		//On initialization of this vHost, we require all of the VMs inside it
-		updateVMList();
-		
 		//Instantiate the alarmHandler to create alarms on vHosts and VMs
 		alarmHandler = new AlarmHandler();
+		
+		//Instantiate the Snapshot system for this vHost
+		snapshotVHost = new VHostSnapshot(this);
+		
+		//On initialization of this vHost, we require all of the VMs inside it
+		updateVMList();
 	}
 
 	// returns List of all VMs inside a vHost
@@ -66,13 +72,21 @@ public class VHost {
 	}
 
 	public void createSnapshot() {
-		//Let's create snapshots for all the VM
+		//Let's create snapshots for all the VM in this vHost and for itself too
 		
 		//First we need to check if the VMList has any VM or not
-		if((vmList == null) || (vmList.isEmpty())){
-			return;
+		if((vmList != null) && (!vmList.isEmpty())){
+			//If it consist any VM, we first need to create the snapshot of the Vhost
+			//First we should remove the last snapshot to save the space
+			snapshotVHost.purgeSnapshot();
+			snapshotVHost.takeSnapshot();
+			
+			//Now let's take all the VM's backup
+			for(VM virtualMachine : vmList){
+				virtualMachine.createSnapshot();
+			}
 		}
-	
+		
 		
 	}
 	
@@ -90,7 +104,10 @@ public class VHost {
 			//if VMs are not Reachable then try to ping vHost 
 			if (vmList != null) {
 				for (VM thisVirtualMachine : vmList) {
-					if (ifVMTrigger(thisVirtualMachine)) {}
+					//Check if the alarm was triggered or not
+					if (ifVMTrigger(thisVirtualMachine)) {
+						System.out.println(AvailabilityManager.INFO + "Turned off on purpose");
+					}
 					
 					else if (thisVirtualMachine.ifReachable()) {
 						System.out.println(thisVirtualMachine.getVirtualMachine().getName()
@@ -101,20 +118,28 @@ public class VHost {
 					else{
 						System.out.println(thisVirtualMachine.getVirtualMachine().getName()
 								+ " is not reachable.");
+						//As the VM was not reachable, we should not check if the VHost is available or not
 						if(this.ping()) {			
+							System.out.println(AvailabilityManager.INFO + "VHost is reachable through its IP:" + this.getIPAddress());
+							thisVirtualMachine.useSnapshot();
+							
+							//As the VHost was on, we should wait for the VM to start 
 							
 						}
 					}
 				}
-			} else {
+			} 
+			else {
 				//return true if no VMs found inside vHost
 				return true;
 			}
-		} catch (Exception e) {
+		} 
+		catch (Exception e) {
 
 		}
 	}
 	
+	//this method checks if the alarm was triggered or not on any VM
 	public boolean ifVMTrigger(VM thisVirtualMachine){
 		try {
 			return thisVirtualMachine.ifAlarmTriggered(alarmHandler.createAlarm(vCenter));
@@ -129,6 +154,11 @@ public class VHost {
 		//code to ping vHost;
 
 		return true;
+	}
+	
+	public String getIPAddress(){
+		String ip = vhost.getConfig().getNetwork().getVnic()[0].getSpec().getIp().getIpAddress();
+		return ip;
 	}
 	
 	//Gets the name of the Host [usage: Snapshot]

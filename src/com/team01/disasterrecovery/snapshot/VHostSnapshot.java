@@ -145,4 +145,26 @@ public class VHostSnapshot implements SnapshotInterface{
 		
 		return false;
 	}
+	
+	//A method to purge past snapshots of this VM
+		@Override
+		public boolean purgeSnapshot() {
+		try{
+			//Let's again create a task for removing past snapshot
+			Task purgeSnapshotTask = virtualHostMachine.removeAllSnapshots_Task();
+			if(purgeSnapshotTask.waitForTask() ==  Task.SUCCESS){
+				System.out.println(AvailabilityManager.INFO 
+						+ "Purging snapshot successful for " 
+						+ virtualHostMachine.getName());
+				return true;
+			}
+		}
+		catch(Exception e){
+			System.out.println(AvailabilityManager.ERROR 
+					+ "Wasn't able to purge the VHost snapshot" 
+					+ " Reason: " + "Unknown");
+				
+		}
+		return false;
+	}
 }

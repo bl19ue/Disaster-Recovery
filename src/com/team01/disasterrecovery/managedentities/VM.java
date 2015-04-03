@@ -2,6 +2,8 @@ package com.team01.disasterrecovery.managedentities;
 
 import com.team01.disasterrecovery.AvailabilityManager;
 import com.team01.disasterrecovery.availability.Reachable;
+import com.team01.disasterrecovery.snapshot.SnapshotInterface;
+import com.team01.disasterrecovery.snapshot.VMSnapshot;
 import com.vmware.vim25.AlarmState;
 import com.vmware.vim25.mo.Alarm;
 import com.vmware.vim25.mo.Task;
@@ -11,9 +13,13 @@ public class VM implements VMInterface{
 
 	private static int MAX_TRIES = 5;
 	private VirtualMachine virtualMachine;
+	private SnapshotInterface snapshotVM;
 	
 	public VM(VirtualMachine virtualMachine){
 		this.virtualMachine = virtualMachine;
+		
+		//Let's have the snapshot instance ready for this VM
+		snapshotVM = new VMSnapshot(this);
 	}
 	
 	//To start the virtual machine
@@ -114,4 +120,23 @@ public class VM implements VMInterface{
 		return virtualMachine;
 	}
 
+	public void createSnapshot(){
+		//Let's first remove past snapshot of this VM
+		snapshotVM.purgeSnapshot();
+		
+		//Now take the snapshot
+		snapshotVM.takeSnapshot();
+	}
+	
+	public void useSnapshot(){
+		snapshotVM.useSnapshot();
+	}
+	
+	public String getIPAddress(){
+		return virtualMachine.getGuest().getIpAddress();
+	}
+	
+	public String getName(){
+		return virtualMachine.getName();
+	}
 }

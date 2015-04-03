@@ -97,15 +97,15 @@ public class VMSnapshot implements SnapshotInterface{
 			}
 			else{
 				System.out.println(AvailabilityManager.ERROR 
-						+ "Could not use the snapshot for recovery of host: " 
-						+ virtualMachine.getVirtualMachine().getName() 
+						+ "Could not use the snapshot for recovery of VM: " 
+						+ virtualMachine.getName() 
 						+ " Reason: " + "Did not succeed");
 			}
 		}
 		catch(Exception e){
 			System.out.println(AvailabilityManager.ERROR 
 					+ "Could not use the snapshot for recovery of host: " 
-					+ virtualMachine.getVirtualMachine().getName() 
+					+ virtualMachine.getName() 
 					+ " Reason: " + e.toString());
 		}
 		return false;
@@ -113,7 +113,7 @@ public class VMSnapshot implements SnapshotInterface{
 
 	//A method to check if the virtual Machine is reachable or not
 	private boolean checkReachability(){
-		if(Reachable.ping(virtualMachine.getVirtualMachine().getGuest().getIpAddress())){
+		if(Reachable.ping(virtualMachine.getIPAddress())){
 			return true;
 		}
 		
@@ -121,6 +121,28 @@ public class VMSnapshot implements SnapshotInterface{
 				+ "Wasn't even able to ping the VM before creating the snapshot" 
 				+ " Reason: " + "The VM might be disconnected");
 		
+		return false;
+	}
+
+	//A method to purge past snapshots of this VM
+	@Override
+	public boolean purgeSnapshot() {
+		try{
+			//Let's again create a task for removing past snapshot
+			Task purgeSnapshotTask = virtualMachine.getVirtualMachine().removeAllSnapshots_Task();
+			if(purgeSnapshotTask.waitForTask() ==  Task.SUCCESS){
+				System.out.println(AvailabilityManager.INFO 
+						+ "Purging snapshot successful for " 
+						+ virtualMachine.getName());
+				return true;
+			}
+		}
+		catch(Exception e){
+			System.out.println(AvailabilityManager.ERROR 
+					+ "Wasn't able to purge the VM snapshot" 
+					+ " Reason: " + "Unknown");
+				
+		}
 		return false;
 	}
 }
