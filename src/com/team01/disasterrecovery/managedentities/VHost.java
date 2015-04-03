@@ -49,7 +49,7 @@ public class VHost {
 				return;
 			}
 			
-			
+			//If there is even 1 VM in the managedEntities, we will initialize the arraylist
 			vmList = new ArrayList<VM>();
 			
 			//Now for each VM that is found inside the host, add it to the VMList
@@ -131,5 +131,8 @@ public class VHost {
 		return true;
 	}
 	
-	
+	//Gets the name of the Host [usage: Snapshot]
+	public String getVHostName(){
+		return vhost.getName();
+	}
 }

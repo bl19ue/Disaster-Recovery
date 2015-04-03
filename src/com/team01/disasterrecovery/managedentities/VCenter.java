@@ -19,7 +19,7 @@ public class VCenter {
 	
 	private Alarm offAlarm;
 	private List<VHost> vHostList;
-	private ServiceInstance vCenter;
+	private static ServiceInstance vCenter;
 	
 	public VCenter(ServiceInstance vCenter){
 		this.vCenter = vCenter;
@@ -135,5 +135,10 @@ public class VCenter {
 	//A Method to get the alarm of the vCenter
 	public Alarm getVCenterOffAlarm(){
 		return offAlarm;
+	}
+	
+	//A method to get this vCenter instance, [usage: Snapshots]
+	public static ServiceInstance getVCenter(){
+		return vCenter;
 	}
 }
