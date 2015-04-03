@@ -12,16 +12,11 @@ import com.vmware.vim25.mo.VirtualMachine;
 public class VMSnapshot implements SnapshotInterface{
 
 	private VM virtualMachine;
-	private ServiceInstance vCenter;
 	private static String SNAPSHOT_DESC = "Snapshot for Virtual Machine";
+	
 	public VMSnapshot(VM virtualMachine){
 		//Gets the virtual machine whose snapshot has to be taken
 		this.virtualMachine = virtualMachine;
-		
-		//Gets the vCenter instance which is only one for whole program
-		vCenter = VCenter.getVCenter();
-		
-		
 	}
 	
 	@Override
