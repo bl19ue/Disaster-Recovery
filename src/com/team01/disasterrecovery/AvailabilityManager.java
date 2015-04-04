@@ -2,6 +2,7 @@ package com.team01.disasterrecovery;
 
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
+import java.util.HashMap;
 import java.net.URL;
 
 import com.team01.disasterrecovery.managedentities.VCenter;
@@ -15,10 +16,12 @@ public class AvailabilityManager {
 	public static String SNAPSHOT_THREAD = "snapshot_thread";
 	public static String HEARTBEAT_THREAD = "heartbeat_thread";
 	
-	private static String vCenterUrl = "130.65.132.101/sdk";
+	private static String vCenterUrl = "https://130.65.132.101";
 	private static String userName = "administrator";
 	private static String password = "12!@qwQW";
 	private static ThreadFactory threadFactory;
+	
+	private static HashMap<String, String> hostMap;
 
 	public static void main(String[] args) throws RemoteException, MalformedURLException {
 		//Creating a Service Instance object of our vCenter
@@ -26,6 +29,13 @@ public class AvailabilityManager {
 		
 		//Creating the new vCenter to get the running vCenter instance
 		VCenter vCenter = new VCenter(serviceInstance);
+		
+		//Let's set the static hosts
+		hostMap = new HashMap<String, String>();
+		hostMap.put("130.65.132.131", "T01-vHost01_132.131");
+		hostMap.put("130.65.132.132", "T01-vHost01_132.132");
+		hostMap.put("130.65.132.133", "T01-vHost01_132.133");
+		
 		
 		//Creating a thread factory for starting different threads
 		threadFactory = new ThreadFactory();
@@ -51,4 +61,7 @@ public class AvailabilityManager {
 		threadInterface.startThread();
 	}
 	
+	public static String getHostName(String ip){
+		return hostMap.get(ip);
+	}
 }

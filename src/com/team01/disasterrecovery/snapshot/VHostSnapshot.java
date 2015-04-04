@@ -3,6 +3,7 @@ package com.team01.disasterrecovery.snapshot;
 import com.team01.disasterrecovery.AvailabilityManager;
 import com.team01.disasterrecovery.availability.Reachable;
 import com.team01.disasterrecovery.managedentities.VCenter;
+import com.team01.disasterrecovery.managedentities.VCenter283;
 import com.team01.disasterrecovery.managedentities.VHost;
 import com.team01.disasterrecovery.managedentities.VM;
 import com.vmware.vim25.mo.InventoryNavigator;
@@ -20,15 +21,15 @@ public class VHostSnapshot implements SnapshotInterface{
 		//Gets the host whose snapshot has to be taken
 		this.vHost = vHost;
 		
-		//Gets the vCenter instance which is only one for whole program
-		vCenter = VCenter.getVCenter();
+		//Gets the main vCenter so that our host could be managed easily
+		vCenter = VCenter283.getVCenter283();
 		
 		//But we cannot directly create a snapshot using the HostSystem or VHost instance
 		//We should remember that vHost is also a virtual machine and hence, we need to
 		//get the instance of a virtual machine using this.vHost
 		try{
 			virtualHostMachine = (VirtualMachine) new InventoryNavigator(vCenter.getRootFolder())
-														.searchManagedEntity("VirtualMachine", vHost.getVHostName());
+														.searchManagedEntity("VirtualMachine", AvailabilityManager.getHostName(vHost.getIPAddress()));//vHost.getVHostName());
 		}
 		catch(Exception e){
 			System.out.println(AvailabilityManager.ERROR 
