@@ -16,7 +16,7 @@ public class AvailabilityManager {
 	public static String SNAPSHOT_THREAD = "snapshot_thread";
 	public static String HEARTBEAT_THREAD = "heartbeat_thread";
 	
-	private static String vCenterUrl = "https://130.65.132.101";
+	private static String vCenterUrl = "https://130.65.132.101/sdk";
 	private static String userName = "administrator";
 	private static String password = "12!@qwQW";
 	private static ThreadFactory threadFactory;
@@ -31,10 +31,7 @@ public class AvailabilityManager {
 		VCenter vCenter = new VCenter(serviceInstance);
 		
 		//Let's set the static hosts
-		hostMap = new HashMap<String, String>();
-		hostMap.put("130.65.132.131", "T01-vHost01_132.131");
-		hostMap.put("130.65.132.132", "T01-vHost01_132.132");
-		hostMap.put("130.65.132.133", "T01-vHost01_132.133");
+		
 		
 		
 		//Creating a thread factory for starting different threads
@@ -62,6 +59,12 @@ public class AvailabilityManager {
 	}
 	
 	public static String getHostName(String ip){
-		return hostMap.get(ip);
+		hostMap = new HashMap<String, String>();
+		hostMap.put("130.65.132.131", "T01-vHost01_132.131");
+		hostMap.put("130.65.132.132", "T01-vHost02_132.132");
+		hostMap.put("130.65.132.133", "T01-vHost03_132.133");
+		String name = hostMap.get(ip);
+		System.out.println(name);
+		return name;
 	}
 }

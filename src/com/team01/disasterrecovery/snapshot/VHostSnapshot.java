@@ -6,6 +6,7 @@ import com.team01.disasterrecovery.managedentities.VCenter;
 import com.team01.disasterrecovery.managedentities.VCenter283;
 import com.team01.disasterrecovery.managedentities.VHost;
 import com.team01.disasterrecovery.managedentities.VM;
+import com.vmware.vim25.mo.Folder;
 import com.vmware.vim25.mo.InventoryNavigator;
 import com.vmware.vim25.mo.ServiceInstance;
 import com.vmware.vim25.mo.Task;
@@ -28,8 +29,11 @@ public class VHostSnapshot implements SnapshotInterface{
 		//We should remember that vHost is also a virtual machine and hence, we need to
 		//get the instance of a virtual machine using this.vHost
 		try{
-			virtualHostMachine = (VirtualMachine) new InventoryNavigator(vCenter.getRootFolder())
-														.searchManagedEntity("VirtualMachine", AvailabilityManager.getHostName(vHost.getIPAddress()));//vHost.getVHostName());
+			String ip = vHost.getVHostName();
+			Folder rootF = vCenter.getRootFolder();
+			String hostName = AvailabilityManager.getHostName(ip);
+			virtualHostMachine = (VirtualMachine) new InventoryNavigator(rootF)
+				.searchManagedEntity("VirtualMachine", hostName );//vHost.getVHostName());
 		}
 		catch(Exception e){
 			System.out.println(AvailabilityManager.ERROR 
@@ -37,7 +41,9 @@ public class VHostSnapshot implements SnapshotInterface{
 					+ " Reason: " + e.toString());
 		}
 		
-		
+		//As it is not a good practice to create the session each and every time we want to add a new host, let's just 
+		//kill it every time
+		VCenter283.killVCenter283Session();
 	}
 	
 	@Override
@@ -136,7 +142,8 @@ public class VHostSnapshot implements SnapshotInterface{
 
 	//A method to check if the vHost is reachable or not
 	private boolean checkReachability(){
-		if(Reachable.ping(virtualHostMachine.getGuest().getIpAddress())){
+		String ip = virtualHostMachine.getGuest().getIpAddress();
+		if(Reachable.ping(ip)){
 			return true;
 		}
 		

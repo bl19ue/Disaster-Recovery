@@ -1,8 +1,10 @@
 package com.team01.disasterrecovery.managedentities;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.oracle.webservices.internal.literal.ArrayList;
+
+
 import com.team01.disasterrecovery.AvailabilityManager;
 import com.team01.disasterrecovery.alarm.AlarmHandler;
 import com.vmware.vim25.mo.Alarm;
@@ -18,7 +20,7 @@ public class VCenter {
 	private static boolean flag = true;
 	
 	private Alarm offAlarm;
-	private List<VHost> vHostList;
+	private ArrayList<VHost> vHostList;
 	private static ServiceInstance vCenter;
 	
 	@SuppressWarnings("unchecked")
@@ -37,7 +39,7 @@ public class VCenter {
 		
 		//Now, as our vCenter consists of all the vHosts in it, we need to 
 		//maintain a list of Virtual Hosts in it
-		vHostList = (List<VHost>) new ArrayList();
+		vHostList = new ArrayList<VHost>();
 		assignVHostList();
 	}
 
@@ -106,7 +108,7 @@ public class VCenter {
 				//For each vHost in the list we check if the virtual machines inside it are reachable or not
 				for(VHost vHost : vHostList) {
 					if(vHost.ifReachable()){
-						System.out.println("vHost is reachable.");
+						System.out.println("vHost is reachable:" + vHost.getVHostName());
 					}
 					else {
 						System.out.println("vHost is not reachable. Trying to recover from snapshot.");

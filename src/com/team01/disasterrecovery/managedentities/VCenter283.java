@@ -6,7 +6,7 @@ import com.team01.disasterrecovery.AvailabilityManager;
 import com.vmware.vim25.mo.ServiceInstance;
 
 public class VCenter283 {
-	private static String VCENTER283_IP = "130.65.132.19";
+	private static String VCENTER283_IP = "https://130.65.132.19/sdk";
 	private static String USERNAME = "student@vsphere.local";
 	private static String PASSWORD = "12!@qwQW";
 	private static ServiceInstance vCenter283;

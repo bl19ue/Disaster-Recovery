@@ -6,7 +6,7 @@ public class Reachable {
 	public static boolean ping(String ip){
 		try{
 			System.out.println("Pinging "+ ip );
-			String pingCommand = "ping" + ip;
+			String pingCommand = "ping " + ip;
 			
 			//Starting a new process in the OS's runtime and executing the command on a new thread
 			Process process = Runtime.getRuntime().exec(pingCommand);

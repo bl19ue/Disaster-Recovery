@@ -11,7 +11,7 @@ import com.vmware.vim25.mo.VirtualMachine;
 
 public class VM implements VMInterface{
 
-	private static int MAX_TRIES = 5;
+	private static int MAX_TRIES = 2;
 	private VirtualMachine virtualMachine;
 	private SnapshotInterface snapshotVM;
 	

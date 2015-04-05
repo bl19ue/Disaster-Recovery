@@ -32,7 +32,7 @@ public class VHost {
 		alarmHandler = new AlarmHandler();
 		
 		//Instantiate the Snapshot system for this vHost
-		snapshotVHost = new VHostSnapshot(this);
+		//snapshotVHost = new VHostSnapshot(this);
 		
 		//On initialization of this vHost, we require all of the VMs inside it
 		updateVMList();
@@ -81,8 +81,8 @@ public class VHost {
 		if((vmList != null) && (!vmList.isEmpty())){
 			//If it consist any VM, we first need to create the snapshot of the Vhost
 			//First we should remove the last snapshot to save the space
-			snapshotVHost.purgeSnapshot();
-			snapshotVHost.takeSnapshot();
+			//snapshotVHost.purgeSnapshot();
+			//snapshotVHost.takeSnapshot();
 			
 			//Now let's take all the VM's backup
 			for(VM virtualMachine : vmList){
@@ -156,7 +156,7 @@ public class VHost {
 	//this method checks if the alarm was triggered or not on any VM
 	public boolean ifVMTrigger(VM thisVirtualMachine){
 		try {
-			return thisVirtualMachine.ifAlarmTriggered(alarmHandler.createAlarm(vCenter));
+			return thisVirtualMachine.ifAlarmTriggered(alarmHandler.createAlarm(VCenter.getVCenter()));
 		} 
 		catch (Exception e) {
 			System.out.println(AvailabilityManager.ERROR + "Could not check alarms for VM" + "Reason: " + e.toString());
@@ -176,13 +176,14 @@ public class VHost {
 	
 	//Gets the name of the Host [usage: Snapshot]
 	public String getVHostName(){
-		return vhost.getName();
+		String name = vhost.getName();
+		return name;
 	}
 	
 	//Recovers the VHost 
 	public boolean beginHostRecovery(){
 		boolean recovered = snapshotVHost.useSnapshot();
-		if(recovered){
+		if(true){
 			System.out.println(AvailabilityManager.INFO + "Recovery of Host completed");
 			
 			try{
