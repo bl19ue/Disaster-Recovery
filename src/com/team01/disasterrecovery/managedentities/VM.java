@@ -74,24 +74,31 @@ public class VM implements VMInterface{
 	public boolean ifReachable(){
 		int maxTries = 0;
 		//Try ping limited number of times to check if the machine is reachable or not
-		while(!Reachable.ping(virtualMachine.getGuest().getIpAddress())){
-			if(maxTries++ >= MAX_TRIES){
-				return false;
-			}
-			else{
-				try {
-					//Wait for 1 second  
-					Thread.sleep(1000);
+		String ip = virtualMachine.getGuest().getIpAddress();
+		if(ip!=null){
+			while(!Reachable.ping(ip)){
+				if(maxTries++ >= MAX_TRIES){
+					return false;
 				}
-				catch (InterruptedException e) {
-					System.out.println(AvailabilityManager.ERROR 
-							+ "Could not ping the machine with IP Address = " 
-							+ virtualMachine.getGuest().getIpAddress() 
-							+ "Reason:" + e.toString());
+				else{
+					try {
+						//Wait for 1 second  
+						Thread.sleep(1000);
+					}
+					catch (InterruptedException e) {
+						System.out.println(AvailabilityManager.ERROR 
+								+ "Could not ping the machine with IP Address = " 
+								+ virtualMachine.getGuest().getIpAddress() 
+								+ "Reason:" + e.toString());
+					}
 				}
 			}
+			return true;
+		}else{
+			System.out.println("Couldn't ping VM as ip is null.");
+			return false;
 		}
-		return true;
+		
 	}
 
 	//Check if the alarm got already triggered for this virtual machine

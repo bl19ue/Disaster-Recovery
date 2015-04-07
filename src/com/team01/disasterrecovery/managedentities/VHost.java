@@ -105,7 +105,7 @@ public class VHost {
 			//Check if VMs are intentionally shutdown.
 			//Check if VMs are Reachable or not
 			//if VMs are not Reachable then try to ping vHost 
-			if (vmList != null) {
+			if (vmList.size()>0) {
 				for (VM thisVirtualMachine : vmList) {
 					//Check if the alarm was triggered or not
 					if (ifVMTrigger(thisVirtualMachine)) {
@@ -166,7 +166,14 @@ public class VHost {
 
 	public boolean ping() {
 		//this method uses the reachable class to ping the vHost
-		return Reachable.ping(this.getIPAddress());
+		String ip = this.getIPAddress();
+		ip = null;
+		if(ip!=null){
+			return Reachable.ping(ip);
+		}else{
+			System.out.println("Couldn't ping VHost as ip is null.");
+			return false;
+		}
 	}
 	
 	public String getIPAddress(){
