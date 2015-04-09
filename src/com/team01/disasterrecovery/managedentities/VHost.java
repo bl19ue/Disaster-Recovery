@@ -164,10 +164,11 @@ public class VHost {
 		return false;
 	}
 
+	@SuppressWarnings("unused")
 	public boolean ping() {
 		//this method uses the reachable class to ping the vHost
-		String ip = this.getIPAddress();
-		ip = null;
+		String ip = this.getVHostName();
+		//ip = null;
 		if(ip!=null){
 			return Reachable.ping(ip);
 		}else{
