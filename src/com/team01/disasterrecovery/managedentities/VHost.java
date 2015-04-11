@@ -77,7 +77,7 @@ public class VHost {
 	public void createSnapshot() {
 		//Let's create snapshots for all the VM in this vHost and for itself too
 		
-		//snapshotVHost.purgeSnapshot();
+		snapshotVHost.purgeSnapshot();
 		snapshotVHost.takeSnapshot();
 		
 		//First we need to check if the VMList has any VM or not

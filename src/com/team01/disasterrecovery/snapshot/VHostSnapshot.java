@@ -84,6 +84,9 @@ public class VHostSnapshot implements SnapshotInterface{
 					//If the task creation was a success
 					System.out.println(AvailabilityManager.INFO + "Snapshot for VHost done"+vHost.getVHostName());
 					
+
+					
+					
 					return true;
 				}
 				else{
@@ -142,9 +145,8 @@ public class VHostSnapshot implements SnapshotInterface{
 				//Now let's check if it was a success or not
 				if(reconnectTask.waitForTask() == Task.SUCCESS){
 					System.out.println(AvailabilityManager.INFO + "Host reconnection accomplished for: " + newHost.getName());
-				}	
-				//add the host to our vcenter 130.65.132.101
 				
+				}	
 				return true;
 				
 			}
