@@ -68,4 +68,14 @@ public class AvailabilityManager {
 		System.out.println(name);
 		return name;
 	}
+	
+	public static String getIPVHost(String ip){
+		hostMap = new HashMap<String, String>();
+		hostMap.put("T01-vHost01_132.131", "130.65.132.131");
+		hostMap.put("T01-vHost02_132.132", "130.65.132.132");
+		hostMap.put("T01-vHost03_132.133", "130.65.132.133");
+		String name = hostMap.get(ip);
+		System.out.println(name);
+		return name;
+	} 
 }

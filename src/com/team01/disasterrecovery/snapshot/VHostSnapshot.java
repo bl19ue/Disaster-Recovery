@@ -1,12 +1,14 @@
 package com.team01.disasterrecovery.snapshot;
 
 import com.team01.disasterrecovery.AvailabilityManager;
+import com.team01.disasterrecovery.ServiceIns;
 import com.team01.disasterrecovery.availability.Reachable;
 import com.team01.disasterrecovery.managedentities.VCenter;
 import com.team01.disasterrecovery.managedentities.VCenter283;
 import com.team01.disasterrecovery.managedentities.VHost;
 import com.team01.disasterrecovery.managedentities.VM;
 import com.vmware.vim25.mo.Folder;
+import com.vmware.vim25.mo.HostSystem;
 import com.vmware.vim25.mo.InventoryNavigator;
 import com.vmware.vim25.mo.ServiceInstance;
 import com.vmware.vim25.mo.Task;
@@ -80,7 +82,7 @@ public class VHostSnapshot implements SnapshotInterface{
 				//But for less complexity for now, let's proceed like this.
 				if(vHostSnapshotTask.waitForTask() == Task.SUCCESS){
 					//If the task creation was a success
-					System.out.println(AvailabilityManager.INFO + "Snapshot for VHost done");
+					System.out.println(AvailabilityManager.INFO + "Snapshot for VHost done"+vHost.getVHostName());
 					
 					return true;
 				}
@@ -124,8 +126,27 @@ public class VHostSnapshot implements SnapshotInterface{
 				
 				//As it was a success to use the snapshot, let's turn on the machine
 				newVirtualMachine.powerOn();
+				ServiceInstance si= ServiceIns.getInstance();
+				//add host
+				String vhost=AvailabilityManager.getIPVHost(virtualHostMachine.getName());// 130.65.132.132
+				Folder rootFolder = si.getRootFolder();
+				HostSystem newHost = (HostSystem) new InventoryNavigator(
+				        rootFolder).searchManagedEntity(
+				            "HostSystem", vhost);
+				Task reconnectTask = newHost.reconnectHost_Task(null);
+				System.out.println(AvailabilityManager.INFO + "Host Reconnection started for: " + newHost.getName());
+				
+				//We should wait atleast for 1 minute
+				Thread.sleep(60 * 1000);
+				
+				//Now let's check if it was a success or not
+				if(reconnectTask.waitForTask() == Task.SUCCESS){
+					System.out.println(AvailabilityManager.INFO + "Host reconnection accomplished for: " + newHost.getName());
+				}	
+				//add the host to our vcenter 130.65.132.101
 				
 				return true;
+				
 			}
 			else{
 				System.out.println(AvailabilityManager.ERROR 
