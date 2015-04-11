@@ -32,7 +32,7 @@ public class VHost {
 		alarmHandler = new AlarmHandler();
 		
 		//Instantiate the Snapshot system for this vHost
-		//snapshotVHost = new VHostSnapshot(this);
+		snapshotVHost = new VHostSnapshot(this);
 		
 		//On initialization of this vHost, we require all of the VMs inside it
 		updateVMList();
@@ -76,6 +76,9 @@ public class VHost {
 
 	public void createSnapshot() {
 		//Let's create snapshots for all the VM in this vHost and for itself too
+		
+		//snapshotVHost.purgeSnapshot();
+		snapshotVHost.takeSnapshot();
 		
 		//First we need to check if the VMList has any VM or not
 		if((vmList != null) && (!vmList.isEmpty())){

@@ -32,8 +32,11 @@ public class VHostSnapshot implements SnapshotInterface{
 			String ip = vHost.getVHostName();
 			Folder rootF = vCenter.getRootFolder();
 			String hostName = AvailabilityManager.getHostName(ip);
-			virtualHostMachine = (VirtualMachine) new InventoryNavigator(rootF)
+			this.virtualHostMachine = (VirtualMachine) new InventoryNavigator(rootF)
 				.searchManagedEntity("VirtualMachine", hostName );//vHost.getVHostName());
+			if(virtualHostMachine.getName() != null){
+				System.out.println(virtualHostMachine.getName());
+			}
 		}
 		catch(Exception e){
 			System.out.println(AvailabilityManager.ERROR 
@@ -43,7 +46,7 @@ public class VHostSnapshot implements SnapshotInterface{
 		
 		//As it is not a good practice to create the session each and every time we want to add a new host, let's just 
 		//kill it every time
-		VCenter283.killVCenter283Session();
+		//VCenter283.killVCenter283Session();
 	}
 	
 	@Override
@@ -54,8 +57,8 @@ public class VHostSnapshot implements SnapshotInterface{
 				//The last two parameters are memory, and quiesce [disable something]
 				//Both are false because, if we use memory, it will save the memory dump and keep the snapshot in the turn on state
 				//And quiesce is false to let the system not create a space for the snapshot on state
-				Task vHostSnapshotTask = virtualHostMachine.createSnapshot_Task(virtualHostMachine.getName(), 
-						SNAPSHOT_DESC + virtualHostMachine.getName(),
+				Task vHostSnapshotTask = virtualHostMachine.createSnapshot_Task(vHost.getVHostName(), 
+						SNAPSHOT_DESC + vHost.getVHostName(),
 						false, false);
 				
 				//As the snapshot is being created, we will have to wait for it and ultimately receive the status
@@ -142,7 +145,15 @@ public class VHostSnapshot implements SnapshotInterface{
 
 	//A method to check if the vHost is reachable or not
 	private boolean checkReachability(){
-		String ip = virtualHostMachine.getGuest().getIpAddress();
+		String ip = "";
+		try{
+			ip = vHost.getVHostName();
+		}
+		catch(Exception e){
+			System.out.println("ip failure:" + e.toString());
+		}
+		
+		//String ip = virtualHostMachine.getGuest().getIpAddress();
 		if(Reachable.ping(ip)){
 			return true;
 		}

@@ -35,6 +35,7 @@ public class AvailabilityManager {
 		
 		
 		//Creating a thread factory for starting different threads
+
 		threadFactory = new ThreadFactory();
 		
 		//Starting the heart beat thread
