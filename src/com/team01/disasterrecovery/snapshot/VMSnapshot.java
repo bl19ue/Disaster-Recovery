@@ -82,12 +82,12 @@ public class VMSnapshot implements SnapshotInterface{
 		 * If this parameter is not set, and the vBalance feature is configured for automatic load balancing, 
 		 * a host is automatically selected. Otherwise, the virtual machine keeps its existing host affiliation.*/
 		try{
-			Task hostSnapshotRecoveryTask = virtualMachine.getVirtualMachine().revertToCurrentSnapshot_Task(null);
+			Task vmSnapshotRecoveryTask = virtualMachine.getVirtualMachine().revertToCurrentSnapshot_Task(null);
 			
 			//Let's wait for this task to complete and check if its a success or not
-			if(hostSnapshotRecoveryTask.waitForTask() == Task.SUCCESS){
+			if(vmSnapshotRecoveryTask.waitForTask() == Task.SUCCESS){
 				System.out.println(AvailabilityManager.INFO 
-						+ "Recovery of host: " 
+						+ "Recovery of VM: " 
 						+ virtualMachine.getVirtualMachine().getName() + " was successful");
 				
 				//As it was a success to use the snapshot, let's turn on the machine
@@ -104,7 +104,7 @@ public class VMSnapshot implements SnapshotInterface{
 		}
 		catch(Exception e){
 			System.out.println(AvailabilityManager.ERROR 
-					+ "Could not use the snapshot for recovery of host: " 
+					+ "Could not use the snapshot for recovery of VM: " 
 					+ virtualMachine.getName() 
 					+ " Reason: " + e.toString());
 		}

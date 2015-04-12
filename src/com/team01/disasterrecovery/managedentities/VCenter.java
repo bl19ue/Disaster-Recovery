@@ -5,9 +5,16 @@ import java.util.List;
 
 
 
+
+import java.util.Random;
+
+import org.apache.commons.logging.impl.AvalonLogger;
+
 import com.team01.disasterrecovery.AvailabilityManager;
 import com.team01.disasterrecovery.alarm.AlarmHandler;
 import com.vmware.vim25.mo.Alarm;
+import com.vmware.vim25.mo.Datacenter;
+import com.vmware.vim25.mo.Folder;
 import com.vmware.vim25.mo.HostSystem;
 import com.vmware.vim25.mo.InventoryNavigator;
 import com.vmware.vim25.mo.ManagedEntity;
@@ -22,11 +29,12 @@ public class VCenter {
 	private Alarm offAlarm;
 	private ArrayList<VHost> vHostList;
 	private static ServiceInstance vCenter;
-	
+	public List<VHost> aliveVHostList= new ArrayList<VHost>();
+	public List<VHost> deadVHostList = new ArrayList<VHost>();
+	public Datacenter dc;
 	@SuppressWarnings("unchecked")
-	public VCenter(ServiceInstance vCenter){
+	public VCenter(ServiceInstance vCenter) throws Exception{
 		this.vCenter = vCenter;
-		
 		try{
 			//Instantiating the vCenter's alarm
 			offAlarm = new AlarmHandler().createAlarm(vCenter);
@@ -58,7 +66,7 @@ public class VCenter {
 					
 					//Add it to the arrayList
 					vHostList.add(thisVHost);
-					
+				//	System.out.println("Adding: " + thisVHost.getIPAddress());
 					count++;
 				}
 				System.out.println(AvailabilityManager.INFO + count + " VHost(s) found in the vCenter");
@@ -106,22 +114,47 @@ public class VCenter {
 			try {
 				System.out.println("Checking if the Virtual machine is reachable or not");
 				//For each vHost in the list we check if the virtual machines inside it are reachable or not
-				for(VHost vHost : vHostList) {
-					if(vHost.ifReachable()){
-						System.out.println("vHost is reachable:" + vHost.getVHostName());
+				pingAllVhost();
+				for(VHost deadvHost : deadVHostList) {
+					//System.out.println("vHost is not reachable. Trying to recover from snapshot.");
+					//As the vHost was not reachable, we need to recover this disaster
+					if(aliveVHostList.size()>0) {
+						Random rand = new Random();
+						int destinationHostIndex = rand. nextInt(aliveVHostList.size()+1);
+						VHost destinationHost; 
+						if(destinationHostIndex>=0)
+							destinationHost = aliveVHostList.get(destinationHostIndex);
+						else
+							destinationHost = aliveVHostList.get(0);
+						//Move VMs to other alive Host											
+						deadvHost.registerVMsToDifferentHost(destinationHost);
+					}else {
+						//add new host
+						String deadhostIp = deadvHost.getVHostName();
+						System.out.println(deadhostIp);
+						List<String> otherVhost = new ArrayList<String>();
+						for(String hostname:AvailabilityManager.hostsArray) {
+							if(!hostname.equals(deadhostIp))
+								otherVhost.add(hostname);
+						}
+						String vhostName = otherVhost.get(0);
+						if(deadvHost.addVHost(vhostName,"root", "12!@qwQW")) {
+							assignVHostList();
+							pingAllVhost();
+						}else {
+							System.out.println("Unable to add new host.");
+						}
+						
 					}
-					else {
-						System.out.println("vHost is not reachable. Trying to recover from snapshot.");
-						//As the vHost was not reachable, we need to recover this disaster
-						if(vHost.beginHostRecovery()){
-							System.out.println(AvailabilityManager.INFO + "vHost recovery successful");
-						}
-						else{
-							System.out.println(AvailabilityManager.ERROR + "Could not recover the vHost " + "Reason: " + "Unknown");
-						}
+					
+					//Trying to recover VM
+					if(deadvHost.beginHostRecovery()){
+						System.out.println(AvailabilityManager.INFO + "vHost recovery successful");
+					}
+					else{
+						System.out.println(AvailabilityManager.ERROR + "Could not recover the vHost " + "Reason: " + "Unknown");
 					}
 				}
-				
 				System.out.println(AvailabilityManager.INFO + "Will wait for 1 minute for next reachability check");
 				//Now we must wait for 1 minute for the next heartbeat
 				Thread.sleep(reachableTimeOut * 1000);
@@ -131,7 +164,20 @@ public class VCenter {
 				
 			}
 		}
-		
+	}
+	
+	public void pingAllVhost() {
+		for(VHost vHost : this.vHostList) {
+			//System.out.println("Pinging " + vHost.getIPAddress());
+			if(vHost.ping()) {
+				vHost.ifReachable();
+				aliveVHostList.add(vHost);
+				
+			}else {
+				deadVHostList.add(vHost);
+			}
+		}
+	
 	}
 	
 	//A Method to get the alarm of the vCenter
@@ -142,5 +188,6 @@ public class VCenter {
 	//A method to get this vCenter instance, [usage: Snapshots]
 	public static ServiceInstance getVCenter(){
 		return vCenter;
-	}
+	}	
+	
 }
