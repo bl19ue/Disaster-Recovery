@@ -263,6 +263,13 @@ public class VHost {
 				+ destinationHost.getIPAddress());
 		this.updateVMList();
 		List<VM> vmList = this.getVmList(); // getting the list of updated VMs
+		List<String> vmNameList = new ArrayList<String>();
+		for(VM vm:vmList) {
+			String vmname = vm.getName();
+			vmNameList.add(vmname);
+			System.out.println(vmname  + " added to vmNameList");
+		}
+		
 
 		Folder rootFolder = VCenter.getVCenter().getRootFolder();
 		Datacenter dc = (Datacenter) new InventoryNavigator(rootFolder)
@@ -276,25 +283,29 @@ public class VHost {
 //		System.out.println("Sleeping thread;");
 //		Thread.sleep(60000);
 		// removing vHost from vCenter(T01-DC)
+		System.out.println("Removing dead vHost.");
 		Task destroyHostTask = (this).getHost().getParent().destroy_Task();
-
 		if (destroyHostTask.waitForTask() == Task.SUCCESS) {
 			System.out.println("Host removed from vCenter");
 			if (vmList.size() > 0) { // if VMs are found in a host
+				int index = 0;
 				for (VM thisVirtualMachine : vmList) {
-
-					String vmName = thisVirtualMachine.getName();
+					
+					String vmName = vmNameList.get(index);
+					System.out.println(vmName);
 					String vmxPath = "[nfs3team01]" + vmName + "/" + vmName	+ ".vmx";
 
-					thisVirtualMachine.getVirtualMachine().unregisterVM(); // disconnecting VHost from vCenter
+					//thisVirtualMachine.getVirtualMachine().unregisterVM(); // disconnecting VHost from vCenter
 					Task registerVM = dc.getVmFolder().registerVM_Task(vmxPath,
 							vmName, false, rp, destinationHost.getHost());
 					if (registerVM.waitForTask() == Task.SUCCESS) {
 						System.out.println(AvailabilityManager.INFO + "VM: "
 								+ thisVirtualMachine.getName() + " moved to "
 								+ destinationHost.getIPAddress());
+						thisVirtualMachine.powerOn();
 
 					}
+					index++;
 				}
 			}
 		}
@@ -302,6 +313,7 @@ public class VHost {
 	
 	public boolean addVHost(String hostName, String hostUserName, String hostPassword) {
 			try {
+				System.out.println("Adding Standalone host to DC : HostName - " + hostName);
 				HostConnectSpec newHost = new HostConnectSpec();
 				
 				newHost.setHostName(hostName);
@@ -326,18 +338,19 @@ public class VHost {
 						newHost, new ComputeResourceConfigSpec(), true);
 
 				if (addHostTask.waitForTask() == Task.SUCCESS) {
-					System.out.println(" new host added to datacenter");
+					System.out.println("Standalone Host (HostName) - " + hostName + " added to DC");
 					// System.out.println(String.format("Host %s is added to Datacenter %s successfully",
 					// newHostName, dcName));
+					
 					return true;
 				} else {
-					System.out.println(" new host failed to add to datacenter");
+					System.out.println("Unable to add standalone Host -" + hostName);
 					// System.out.println(String.format("vHost %s failed to add!!! %s",
 					// hostName, showTaskErrorMessage(addHostTask)));
 				}
 
 			} catch (Exception e) {
-				System.out.println(AvailabilityManager.ERROR + "Getting error while trying to add a Host. \n" + e.toString());
+				System.out.println(AvailabilityManager.ERROR + "Getting error while trying to add a Host - " + hostName +  ". " + e.toString());
 			}
 		
 		return false;

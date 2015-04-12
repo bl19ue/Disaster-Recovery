@@ -2,10 +2,6 @@ package com.team01.disasterrecovery.managedentities;
 
 import java.util.ArrayList;
 import java.util.List;
-
-
-
-
 import java.util.Random;
 
 import org.apache.commons.logging.impl.AvalonLogger;
@@ -22,10 +18,9 @@ import com.vmware.vim25.mo.ServiceInstance;
 
 public class VCenter {
 	//Creating snapshot timeout is 10 minutes;
-	private static int snapshotTimeOut = 600;
-	private static int reachableTimeOut = 60;
-	private static boolean flag = true;
-	
+	private static int snapshotTimeOut = 600;	//600 secs
+	private static int reachableTimeOut = 60; 	//60 secs
+	private static boolean flag = true;	
 	private Alarm offAlarm;
 	private ArrayList<VHost> vHostList;
 	private static ServiceInstance vCenter;
@@ -119,6 +114,7 @@ public class VCenter {
 					//System.out.println("vHost is not reachable. Trying to recover from snapshot.");
 					//As the vHost was not reachable, we need to recover this disaster
 					if(aliveVHostList.size()>0) {
+						//Moving deadhost VMs to a aliveHost
 						Random rand = new Random();
 						int destinationHostIndex = rand. nextInt(aliveVHostList.size()+1);
 						VHost destinationHost; 
@@ -129,7 +125,7 @@ public class VCenter {
 						//Move VMs to other alive Host											
 						deadvHost.registerVMsToDifferentHost(destinationHost);
 					}else {
-						//add new host
+						//add new host and remove dead host
 						String deadhostIp = deadvHost.getVHostName();
 						System.out.println(deadhostIp);
 						List<String> otherVhost = new ArrayList<String>();
@@ -139,7 +135,9 @@ public class VCenter {
 						}
 						String vhostName = otherVhost.get(0);
 						if(deadvHost.addVHost(vhostName,"root", "12!@qwQW")) {
-							assignVHostList();
+							ManagedEntity addedVHost = new InventoryNavigator(VCenter.getVCenter().getRootFolder()).searchManagedEntity("HostSystem", vhostName);
+							VHost destinationHost = new VHost((HostSystem)addedVHost);
+							deadvHost.registerVMsToDifferentHost(destinationHost);
 							pingAllVhost();
 						}else {
 							System.out.println("Unable to add new host.");
@@ -160,13 +158,16 @@ public class VCenter {
 				Thread.sleep(reachableTimeOut * 1000);
 			}
 			catch(Exception e) {
-				System.out.println(AvailabilityManager.ERROR + "vHost Reachability check problem " + "Reason: " + e.toString() );
+				System.out.println(AvailabilityManager.ERROR + "vHost Reachability check problem " + " Reason: " + e.toString() );
 				
 			}
 		}
 	}
 	
 	public void pingAllVhost() {
+		assignVHostList();	
+		aliveVHostList.clear();
+		deadVHostList.clear();
 		for(VHost vHost : this.vHostList) {
 			//System.out.println("Pinging " + vHost.getIPAddress());
 			if(vHost.ping()) {
