@@ -26,7 +26,7 @@ public class VHostSnapshot implements SnapshotInterface{
 		
 		//Gets the main vCenter so that our host could be managed easily
 		vCenter = VCenter283.getVCenter283();
-		
+		//asbd
 		//But we cannot directly create a snapshot using the HostSystem or VHost instance
 		//We should remember that vHost is also a virtual machine and hence, we need to
 		//get the instance of a virtual machine using this.vHost
@@ -37,7 +37,7 @@ public class VHostSnapshot implements SnapshotInterface{
 			this.virtualHostMachine = (VirtualMachine) new InventoryNavigator(rootF)
 				.searchManagedEntity("VirtualMachine", hostName );//vHost.getVHostName());
 			if(virtualHostMachine.getName() != null){
-				System.out.println(virtualHostMachine.getName());
+				System.out.println("Snapshot of vhost"+virtualHostMachine.getName());
 			}
 		}
 		catch(Exception e){
@@ -46,9 +46,6 @@ public class VHostSnapshot implements SnapshotInterface{
 					+ " Reason: " + e.toString());
 		}
 		
-		//As it is not a good practice to create the session each and every time we want to add a new host, let's just 
-		//kill it every time
-		//VCenter283.killVCenter283Session();
 	}
 	
 	@Override

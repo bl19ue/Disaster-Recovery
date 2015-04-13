@@ -67,7 +67,7 @@ public class AvailabilityManager {
 		hostMap.put("130.65.132.132", "T01-vHost02_132.132");
 		hostMap.put("130.65.132.133", "T01-vHost03_132.133");
 		String name = hostMap.get(ip);
-		System.out.println(name);
+		//System.out.println(name);
 		return name;
 	}
 	

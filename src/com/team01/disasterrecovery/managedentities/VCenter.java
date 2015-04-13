@@ -50,7 +50,7 @@ public class VCenter {
 		int count = 0;
 		try{
 			//Let's use the managed entities in the vCenter
-			ManagedEntity[] managedVHosts = new InventoryNavigator(vCenter.getRootFolder()).searchManagedEntities("HostSystem");
+ 			ManagedEntity[] managedVHosts = new InventoryNavigator(vCenter.getRootFolder()).searchManagedEntities("HostSystem");
 			
 			//Now we need to check if even one host exist in the vcenter or not, if it does
 			//We need to add it in the vHostList array
@@ -58,10 +58,28 @@ public class VCenter {
 				for(ManagedEntity oneEntity : managedVHosts){
 					//Create the instance of the new VHost using the managedEntity we got
 					VHost thisVHost = new VHost((HostSystem) oneEntity);
-					
+					int flag=0;
 					//Add it to the arrayList
-					vHostList.add(thisVHost);
-				//	System.out.println("Adding: " + thisVHost.getIPAddress());
+					
+						
+					if(vHostList.isEmpty()){
+						vHostList.add(thisVHost);
+					}else{
+						for(VHost vhost:vHostList){
+							String ip= vhost.getIPAddress();
+							if(ip.equals(thisVHost.getIPAddress())){
+								flag=1;
+								break;
+							}
+						}
+							if(flag==0){
+								vHostList.add(thisVHost);
+								
+							}
+								
+						
+					}
+					
 					count++;
 				}
 				System.out.println(AvailabilityManager.INFO + count + " VHost(s) found in the vCenter");
@@ -113,10 +131,17 @@ public class VCenter {
 				for(VHost deadvHost : deadVHostList) {
 					//System.out.println("vHost is not reachable. Trying to recover from snapshot.");
 					//As the vHost was not reachable, we need to recover this disaster
+					//Trying to recover VM
+					if(deadvHost.beginHostRecovery()){
+						System.out.println(AvailabilityManager.INFO + "vHost recovery successful");
+					}
+					else{
+						System.out.println(AvailabilityManager.ERROR + "Could not recover the vHost " + "Reason: " + "Unknown");
+					}
 					if(aliveVHostList.size()>0) {
 						//Moving deadhost VMs to a aliveHost
 						Random rand = new Random();
-						int destinationHostIndex = rand. nextInt(aliveVHostList.size()+1);
+						int destinationHostIndex = rand. nextInt(aliveVHostList.size());
 						VHost destinationHost; 
 						if(destinationHostIndex>=0)
 							destinationHost = aliveVHostList.get(destinationHostIndex);
@@ -145,13 +170,6 @@ public class VCenter {
 						
 					}
 					
-					//Trying to recover VM
-					if(deadvHost.beginHostRecovery()){
-						System.out.println(AvailabilityManager.INFO + "vHost recovery successful");
-					}
-					else{
-						System.out.println(AvailabilityManager.ERROR + "Could not recover the vHost " + "Reason: " + "Unknown");
-					}
 				}
 				System.out.println(AvailabilityManager.INFO + "Will wait for 1 minute for next reachability check");
 				//Now we must wait for 1 minute for the next heartbeat
@@ -169,8 +187,8 @@ public class VCenter {
 		aliveVHostList.clear();
 		deadVHostList.clear();
 		for(VHost vHost : this.vHostList) {
-			//System.out.println("Pinging " + vHost.getIPAddress());
 			if(vHost.ping()) {
+			//System.out.println("Pinging " + vHost.getIPAddress());
 				vHost.ifReachable();
 				aliveVHostList.add(vHost);
 				

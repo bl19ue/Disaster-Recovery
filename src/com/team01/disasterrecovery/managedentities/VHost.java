@@ -100,8 +100,6 @@ public class VHost {
 			// If it consist any VM, we first need to create the snapshot of the
 			// Vhost
 			// First we should remove the last snapshot to save the space
-			// snapshotVHost.purgeSnapshot();
-			// snapshotVHost.takeSnapshot();
 
 			// Now let's take all the VM's backup
 			for (VM virtualMachine : vmList) {
@@ -129,12 +127,12 @@ public class VHost {
 															// VM from its
 															// snapshot
 						for (int i = 0; i < 5; i++) {
-							// while (true) {
+							
 							if (thisVirtualMachine.getIPAddress() != null) {
 								break;
 							}
 							Thread.sleep(1 * 1000);
-							// }
+						
 						}
 					}
 				}
@@ -204,7 +202,7 @@ public class VHost {
 
 	// Recovers the VHost
 	public boolean beginHostRecovery() {
-		// boolean recovered = snapshotVHost.useSnapshot();
+		//boolean recovered = snapshotVHost.useSnapshot();
 		if (true) {
 			System.out.println(AvailabilityManager.INFO
 					+ "Recovery of Host completed");
@@ -229,7 +227,7 @@ public class VHost {
 						System.out.println(AvailabilityManager.INFO
 								+ "Host reconnection accomplished for: "
 								+ this.getVHostName());
-
+						snapshotVHost.useSnapshot();
 						// Now as all the VM's were down, let us start them
 						for (VM virtualMachine : vmList) {
 							virtualMachine.powerOn();
@@ -280,11 +278,11 @@ public class VHost {
 		
 		// disconnect vHost from vCenter(T01-DC)
 		Task disconnectHostTask = (this).getHost().disconnectHost();
-//		System.out.println("Sleeping thread;");
-//		Thread.sleep(60000);
+
 		// removing vHost from vCenter(T01-DC)
 		System.out.println("Removing dead vHost.");
-		Task destroyHostTask = (this).getHost().getParent().destroy_Task();
+		Task destroyHostTask = (this).getHost().getParent().destroy_Task(); //remove the Vhost
+		
 		if (destroyHostTask.waitForTask() == Task.SUCCESS) {
 			System.out.println("Host removed from vCenter");
 			if (vmList.size() > 0) { // if VMs are found in a host
@@ -292,7 +290,7 @@ public class VHost {
 				for (VM thisVirtualMachine : vmList) {
 					
 					String vmName = vmNameList.get(index);
-					System.out.println(vmName);
+					System.out.println("VM in the dead vhost"+vmName);
 					String vmxPath = "[nfs3team01]" + vmName + "/" + vmName	+ ".vmx";
 
 					//thisVirtualMachine.getVirtualMachine().unregisterVM(); // disconnecting VHost from vCenter
@@ -339,14 +337,11 @@ public class VHost {
 
 				if (addHostTask.waitForTask() == Task.SUCCESS) {
 					System.out.println("Standalone Host (HostName) - " + hostName + " added to DC");
-					// System.out.println(String.format("Host %s is added to Datacenter %s successfully",
-					// newHostName, dcName));
 					
 					return true;
 				} else {
 					System.out.println("Unable to add standalone Host -" + hostName);
-					// System.out.println(String.format("vHost %s failed to add!!! %s",
-					// hostName, showTaskErrorMessage(addHostTask)));
+					
 				}
 
 			} catch (Exception e) {
